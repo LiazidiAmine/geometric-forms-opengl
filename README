@@ -16,34 +16,70 @@ CONTENT
 - installation script file : install.sh
 
 - libg2x/
-	2 versions of the library <g2x> : 
+	2 versions of the library <g2x> :
   	- libg2x.32b.so     : for 32 bits Linux
   	- libg2x.64b.so     : for 64 bits Linux
-		- include/  header files for the library. 
+		- include/  header files for the library.
 
 - code.2d/
-		- include/ (empty) 
+		- include/ (empty)
 		- src/ (some examples)
 		- Makefile
 
 - libg3x/
-	2 versions of the library <g3x> : 
+	2 versions of the library <g3x> :
   	- libg3x.32b.so     : for 32 bits Linux
   	- libg3x.64b.so     : for 64 bits Linux
-		- include/  header files for the library. 
+		- include/  header files for the library.
 
 - code.3d/
-		- include/ (empty) 
+		- include/ (empty)
 		- src/ (some examples)
 		- Makefile
 
 
 ==================================================================================
 
-USE  
+USE
 - in the current directory, run the installation script : ./install.sh
-  WARNING : this shell script modifies (or creates) the configuration file ~/.bashrc 
+  WARNING : this shell script modifies (or creates) the configuration file ~/.bashrc
     * Some environnement variables are created for compilation.
       These variables are defined relatively to the CURRENT INSTALLATION PATH
       => if this path changes, the installation must be done again.
-  
+
+==================================================================================
+opengl est un langage à balise.
+Quand on dessine, il prend la dernière couleur qui traine, Si c'est celle de fond, on voit rien
+On a des fonctons gl_float, gl_begin, gl_end
+
+glu -> couche de l'interface graphique
+glut -> couche au dessus
+
+opengl -> ressemble au langage lateck
+
+glutsolidsphere affiche une sphere
+
+ETAPE POUR DESSINER :
+transformation
+homothétie
+rotation
+translation
+Sinon il faut une bonne explication à ce qu'on fait car c'est l'ordre logique
+
+Les push correspond à des noeuds comme vu en TD
+
+En gros la structure de draw
+glpush
+	transfo
+	objet
+	glpush
+	transfo
+	autre objet
+	glpop
+	etc...
+glpop
+
+
+Le prof a fait une fonction g3xMatérial(g3xcolor, ambi,diff,) dans g3x_tools.h
+
+Cette fonction défini une couleur et un matériaux;

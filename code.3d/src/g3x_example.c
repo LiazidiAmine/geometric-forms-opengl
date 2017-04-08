@@ -6,6 +6,13 @@
 
 #include <g3x.h>
 
+/* flag d'affichag/masquage */
+static bool FLAG_TORUS =true;
+static bool FLAG_CONE  =true;
+static bool FLAG_ICOS  =true;
+static bool FLAG_SPHERE =true;
+static bool FLAG_CUBE =true;
+
 /* des couleurs prédéfinies */
 static G3Xcolor rouge  ={1.0,0.0,0.0};
 static G3Xcolor jaune  ={1.0,1.0,0.0};
@@ -38,11 +45,7 @@ void Anim(void)
 	if (W[0]<-10. || W[0]>+10.) pas=-pas;
 }
 
-/* flag d'affichag/masquage */
-static bool FLAG_TEAPOT=true;
-static bool FLAG_TORUS =true;
-static bool FLAG_CONE  =true;
-static bool FLAG_ICOS  =true;
+
 
 /*= FONCTION DE DESSIN PRINCIPALE =*/
 static void Dessin(void)
@@ -60,19 +63,6 @@ static void Dessin(void)
   	glutSolidCube(1.);
 	glDisable(GL_BLEND);
 
-
-	if (FLAG_TEAPOT)
-	{
-		glPushMatrix();
-    	glTranslatef(0.,0.,1.);
-    	glRotatef(angle,0.,0.,1.);
-    	glRotatef(90,1.,0.,0.);
-    	g3x_Material(bleu,ambi,diff,spec,shin,1.);
-			glDisable(GL_CULL_FACE);
-    	glutSolidTeapot(.5);
-			glEnable(GL_CULL_FACE);
-  	glPopMatrix();
-	}
 	if (FLAG_TORUS)
 	{
   	glPushMatrix();
@@ -94,6 +84,14 @@ static void Dessin(void)
     	glutSolidCone(1.,1.,20,20);
   	glPopMatrix();
 	}
+
+	glPushMatrix();
+		glRotatef(angle,0.,0.,1.);
+		glTranslatef(-10,0.,0.);
+		glScalef(1.,1.,1.);
+ 			g3x_Material(cyan,ambi,diff,spec,shin,1.);
+		glutSolidCube(5);
+	glPopMatrix();
 	if (FLAG_ICOS)
 	{
   	glPushMatrix();
@@ -182,7 +180,6 @@ int main(int argc, char** argv)
   g3x_SetLightPosition (10.,10.,10.);
   g3x_SetLightDirection( 0., 0., 0.);
 
-	g3x_CreateSwitch("teapot",&FLAG_TEAPOT,"affiche/masques la theiere  ");
 	g3x_CreateSwitch("torus ",&FLAG_TORUS ,"affiche/masques le tore     ");
 	g3x_CreateSwitch("cone  ",&FLAG_CONE  ,"affiche/masques le cone     ");
 	g3x_CreateSwitch("icos  ",&FLAG_ICOS  ,"affiche/masques l'icosahedre");
