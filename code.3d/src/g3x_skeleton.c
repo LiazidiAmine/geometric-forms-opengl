@@ -169,10 +169,103 @@ void cercle(double h, G3Xcolor col)
 	}
 	glEnd();
 }
+/*
+ * cercle
+ * c'est un polygone avec énormément de côtés
+ * h hauteur, col color
+ */
+void drawCrescentTriStrip(double step,double scale,double fullness, G3Xcolor col,double h) {
+		Material(col,0.20,0.50,0.,0.,1.);
+		glBegin(GL_QUAD_STRIP);
+		glVertex3d(0.,scale,h);
+    float angle=step;
+    while (angle<M_PI) {
+        double sinAngle=sinf(angle);
+        double cosAngle=cosf(angle);
+        glVertex3d(scale*sinAngle,scale*cosAngle,h);
+        glVertex3d(-fullness*scale*sinAngle,scale*cosAngle,h);
+        angle+=step;
+    }
+    glVertex3d(0.,-scale,h);
+		glEnd();
+}
+
+void drawSpecialCircle(){
+
+	double x,y,angle;
+	/*All lines lie in the xy plane.*/
+	double z=0;
+	glBegin(GL_LINES);/* Call only once for all remaining points*/
+	Material(bleu,0.20,0.50,0.,0.,1.);
+	for(angle = 0.; angle <= PI; angle += (PI/20.))
+	  {
+		/* Top half of the circle*/
+	  x = 50.*sin(angle);
+	  y = 50.*cos(angle);
+	  glVertex3d(x, y, z);/*First endpoint of line*/
+
+	  x = 50.*sin(angle + PI);
+	  y = 50.*cos(angle + PI);
+	  glVertex3d(x, y, z);/*Second endpoint of line*/
+	  }
+
+	glEnd();/*Done drawing points*/
+}
+
+void drawEllipse(){
+	glBegin(GL_LINE_STRIP);
+	Material(marron2,0.20,0.50,0.,0.,1.);
+	double x, y,z,i;
+	for(i = 0; i < 360; i=i+0.1)
+	{
+		x = sin(i);
+		y = cos(i);
+		z = 0;
+		glVertex3d(x,y,z);
+	}
+	glEnd();
+}
+
+void drawCircle(){
+	/* Call only once for all remaining points*/
+glBegin(GL_LINE_STRIP);
+Material(marron2,0.20,0.50,0.,0.,1.);
+double angle,x,y,z = -50.;
+for(angle = 0.; angle <= (2.*PI)*3.; angle += 0.1)
+  {
+  x = 50.*rayon*sin(angle);
+  y = 50.*rayon*cos(angle);
+
+  /* Specify the point and move the z value up a little*/
+  glVertex3d(x, y, z);
+  z += 0.1;
+  }
+
+/* Done drawing points */
+glEnd();
+}
+void DrawEllipse()
+{
+  Material(marron2,1,1,1.,1.,1.);
+	double x,y,z,t;
+	glBegin(GL_POINTS);
+	for(t = 0.; t <= 360; t +=1.)
+	{
+    x = 0.625*rayon*sin(t);
+	  y = 0.5*rayon*cos(t);
+	  z = 0.;
+	  glVertex3d(x,y,z);
+	}
+  glEnd();
+}
 /*= FONCTION DE DESSIN PRINCIPALE =*/
 static void Draw(void)
 {
-
+	/*drawCrescentTriStrip(1.,2.,2.,rouge,2.);*/
+	/*drawSpecialCircle();*/
+	/*drawLines();*/
+	/*drawCircle();*/
+	DrawEllipse();
 	if(FLAG_ETOILE)
 	{
 		etoile(3,bleu);
