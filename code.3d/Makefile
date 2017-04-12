@@ -26,7 +26,7 @@ src = src/
 # fichiers *.h locaux et lib.
 inc = -I./include $(incG3X) 
 
-exec = g3x_skeleton g3x_example demo_scene3D
+exec = g3x_sphere g3x_tor g3x_cylinder g3x_cube g3x_cone g3x_skeleton g3x_example demo_scene3D g3x_solaire g3x_geometrics_forms
 
 all : $(exec) clean
 

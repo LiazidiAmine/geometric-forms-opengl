@@ -62,7 +62,7 @@ void gl_Cylinder(int n)
 	double a=0.,cosa,sina;
   glBegin(GL_QUAD_STRIP);
   for (i=0;i<=n;i++)
-  {	
+  {
 		cosa=cos(a);
 		sina=sin(a);
   	a+=pas;
@@ -98,8 +98,8 @@ static void sol(void)
         glVertex3d(-1.+(i+1)*in , -1.+(j+1)*in , 0.);
         glVertex3d(-1.+(i+1)*in , -1.+(j  )*in , 0.);
       glEnd();
-    }  
-    glPopMatrix();  
+    }
+    glPopMatrix();
 }
 
 
@@ -117,11 +117,11 @@ static void pied(int shape)
 static void table(int shape)
 {
     glPushMatrix();
-      glTranslatef(0.,0.,1.);  
+      glTranslatef(0.,0.,1.);
       /* le plateau */
       glPushMatrix();
-        glTranslatef(0.,0.,1.);  
-        glTranslatef(0.,0.,-0.1);  
+        glTranslatef(0.,0.,1.);
+        glTranslatef(0.,0.,-0.1);
         glScalef(1.8,1.0,0.1);
         Material(marron2,0.25,0.5,0.,0.,1.);
         glutSolidCube(2.);
@@ -143,14 +143,14 @@ static void table(int shape)
         glTranslatef(-1.6,+0.8,0.);
         pied(shape);
       glPopMatrix();
-    glPopMatrix();  
+    glPopMatrix();
 }
 
 /*! création de l'objet global "chaise" !*/
 static void chaise(int shape)
 {
   glPushMatrix();
-    glTranslatef(0.,0.,1.);  
+    glTranslatef(0.,0.,1.);
     glScalef(.5,.5,.5);
     glPushMatrix();
       /* le siège */
@@ -166,7 +166,7 @@ static void chaise(int shape)
         glutSolidCube(2.);
       glPopMatrix();
       /* les 4 pieds */
-      glTranslatef(0.,0.,-1.);  
+      glTranslatef(0.,0.,-1.);
       glPushMatrix();
         glTranslatef(+0.8,+0.8,0.);
         pied(shape);
@@ -183,8 +183,8 @@ static void chaise(int shape)
         glTranslatef(-0.8,+0.8,0.);
         pied(shape);
       glPopMatrix();
-    glPopMatrix();  
-  glPopMatrix();  
+    glPopMatrix();
+  glPopMatrix();
 }
 
 
@@ -195,7 +195,7 @@ static void verre()
   int n=40;
   float in=(2.*PI)/n;
   int i;
-	
+
 	/* activation transparence */
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -207,16 +207,16 @@ static void verre()
       for (i=0;i<n;i++)
         glVertex3d(cos(i*in), sin(i*in), 0.0);
     glEnd();
-    /* le bord */		
+    /* le bord */
   	glPushMatrix();
 			glTranslatef(0.,0.,.5);
 			glScalef(1.,1.,0.5);
 			gl_Cylinder(n);
   	glPopMatrix();
   glPopMatrix();
-	/* désactivation transparence */	
+	/* désactivation transparence */
 	glDisable(GL_BLEND);
-}  
+}
 
 
 /*! création de l'objet global "plat" !*/
@@ -240,7 +240,7 @@ static void plat()
       glScalef(1.,1.,2.);
       /* tore circulaire */
       glutSolidTorus(0.1,1.0,n,n); /* le Tore canonique de Gl */
-    glPopMatrix();  
+    glPopMatrix();
 
     /*les fruits*/
     glPushMatrix();
@@ -248,29 +248,29 @@ static void plat()
       glScalef(.18,.18,.30);
       Material(orange,0.2,0.75,0.5,.2,1.);
       glutSolidTorus(1.1,1.,n,n);
-    glPopMatrix();  
+    glPopMatrix();
     glPushMatrix();
       glTranslatef(-0.1,0.55,0.28);
       glRotatef(90.,0.,1.,0.);
       glScalef(.18,.18,.30);
       Material(vert2,0.25,0.75,1.0,.2,1.);
       glutSolidTorus(1.1,1.,n,n);
-    glPopMatrix();  
+    glPopMatrix();
     glPushMatrix();
       glTranslatef(-0.40,-0.40,0.28);
       glScalef(.18,.18,.30);
       Material(jaune,0.1,0.75,0.7,.2,1.);
       glutSolidTorus(1.1,1.,n,n);
-    glPopMatrix();  
+    glPopMatrix();
     glPushMatrix();
       glTranslatef(0.,0.,.74);
       glRotatef(30.,1.,1.,0.);
       glScalef(.18,.18,.30);
       Material(rouge,0.2,0.75,0.4,.2,1.);
       glutSolidTorus(1.1,1.,n,n);
-    glPopMatrix();  
-  glPopMatrix();  
-}  
+    glPopMatrix();
+  glPopMatrix();
+}
 
 /*! création l'objet global "teapot" !*/
 static void teapot()
@@ -284,9 +284,9 @@ static void teapot()
      glutSolidTeapot(1.); /* la théière canonique de Gl */
     glPopMatrix();
   glPopMatrix();
-}  
+}
 
-/*! Un premier lot d'objets : 1 table, 1 coupe de fruits, 3 chaises !*/  
+/*! Un premier lot d'objets : 1 table, 1 coupe de fruits, 3 chaises !*/
 static void lot1(void)
 {
   glPushMatrix();
@@ -317,14 +317,14 @@ static void lot1(void)
       Material(bleu,0.25,0.5,0.0,1.0,1.);
       chaise(0);
     glPopMatrix();
-    
+
     glPushMatrix();
       glTranslatef(+1.5,0.,0.);
       glRotatef(170.,0.,0.,1.);
       Material(cyan,0.25,0.5,0.0,1.0,1.);
       chaise(1);
     glPopMatrix();
-		
+
 		/* 4 verres */
     Material(glass,0.6,0.85,0.5,1.0,0.5);
     glPushMatrix();
@@ -346,7 +346,7 @@ static void lot1(void)
   glPopMatrix();
 }
 
-/*! Un second lot d'objets : 1 table, 1 théière, 4 chaises !*/  
+/*! Un second lot d'objets : 1 table, 1 théière, 4 chaises !*/
 static void lot2(void)
 {
   glPushMatrix();
@@ -370,7 +370,7 @@ static void lot2(void)
       glRotatef(100.,0.,0.,1.);
       Material(rouge,0.25,0.5,0.0,1.0,1.);
       chaise(0);
-    glPopMatrix();    
+    glPopMatrix();
     glPushMatrix();
       glTranslatef(+2.5,0.,0.);
       glRotatef(140.,0.,0.,1.);
@@ -394,26 +394,26 @@ static void Dessin(void)
   glPopMatrix();
 	/* un 1° lot de table/chaises/objets */
   glPushMatrix();
-    glTranslatef(-3.,-2.5,0.);  
+    glTranslatef(-3.,-2.5,0.);
     glRotatef(-40.,0.,0.,1.);
     lot1();
   glPopMatrix();
 	/* le même, ailleurs */
   glPushMatrix();
-    glTranslatef(3.,3.5,0.);  
+    glTranslatef(3.,3.5,0.);
     glRotatef(40.,0.,0.,1.);
     lot1();
   glPopMatrix();
 
 	/* un 2° lot de table/chaises/objets */
   glPushMatrix();
-    glTranslatef(+2.75,-3.00,0.);  
+    glTranslatef(+2.75,-3.00,0.);
     glRotatef(+45.,0.,0.,1.);
     lot2();
   glPopMatrix();
 	/* le même, ailleurs */
   glPushMatrix();
-    glTranslatef(-3.0,+2.75,0.);  
+    glTranslatef(-3.0,+2.75,0.);
     glRotatef(-130.,0.,0.,1.);
     lot2();
   glPopMatrix();
@@ -423,14 +423,14 @@ static void Dessin(void)
 /*=    ACTION A EXECUTER EN SORTIE   =*/
 /*= libération de mémoire, nettoyage =*/
 /*= -> utilise la pile de <atexit()> =*/
-static void Exit(void) 
+static void Exit(void)
 {
   /*! rien à faire dans cet exemples !*/
 }
 
 
 int main(int argc, char** argv)
-{ 
+{
   /* initialisation de la fenêtre graphique et paramétrage Gl */
   g3x_InitWindow(*argv,768,512);
 

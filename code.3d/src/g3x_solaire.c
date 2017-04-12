@@ -29,55 +29,10 @@ static G3Xcolor colmap[MAXCOL];
 static G3Xvector W={1.,2.,3.};
 static double    b=0.1;
 
-G3Xpoint *Vrtx;
-G3Xvector *Norm;
-int nbv;
-int nbn;
-
 /*= FONCTION DE MODELISATION =*/
 static void Init(void)
 {
 	fprintf(stderr,"\nInit\n");
-}
-
-static void init2(){
-	int nbp=250;
-	int nbm=250;
-	int i,j;
-	nbv=nbp*nbm;
-	nbn=nbv;
-	Vrtx=(G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
-	Norm =(G3Xvector*)calloc(nbn,sizeof(G3Xvector));
-	double a=2.*PI/nbv;
-	double phi=PI/nbp;
-	G3Xpoint *v=Vrtx;
-	G3Xvector *n=Norm;
-
-	for(i=nbv/5+1;i<nbv;i++){
-		double t=g3x_Rand_Delta(1,1);
-		double k=g3x_Rand_Delta(0,PI);
-		(*n)[0]=(1-t/2)*cos(i*k);
-		(*v)[0]=(*n)[0];
-		(*n)[1]=(1-t/2)*sin(i*k);
-		(*v)[1]=(*n)[1];
-		(*n)[2]=t;
-		(*v)[2]=(*n)[2];
-		v++;
-		n++;
-	}
-
-	/*for(i=0;i<nbv/5;i++){
-		double r=g3x_Rand_Delta(0,2*PI);
-		(*n)[0]=0;
-		(*v)[0]=r*cos(theta);
-		(*n)[1]=0;
-		(*v)[1]=r*sin(theta);
-		(*n)[2]=-1;
-		(*v)[2]=0;
-		v++;
-		n++;
-	}*/
-
 }
 
 /*= FONCTION D'ANIMATION =*/
@@ -100,18 +55,88 @@ static bool FLAG_PLANETS3 = true;
 /*= FONCTION DE DESSIN PRINCIPALE =*/
 static void Draw(void)
 {
-	init2();
-	glPushMatrix();
-	g3x_Material(G3Xr,.25,.25,.25,.25,.25);
-	glPointSize(.1);
-	G3Xpoint *v= Vrtx;
-	G3Xvector *n=Norm;
-	while(v<Vrtx+nbv){
-		glNormal3dv(*n);n++;
-		glVertex3dv(*v);v++;
+	/* un soleil dans l'axe du plan */
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		if(FLAG_SOLEIL)
+		{
+			/* une sphere rouge*/
+			g3x_Material(rouge,ambi,diff,spec,shin,1.);
+			glutSolidSphere(rayon,40,40);
+			/* une sphere jaune*/
+			g3x_Material(jaune,ambi,diff,spec,shin,alpha);
+			glutSolidSphere(rayon,40,45);
+		}
+	glDisable(GL_BLEND);
+
+	/* Les planetes autour du soleil */
+	if(FLAG_PLANETS1)
+	{
+		int i=0;
+		double a=360./4;
+		glPushMatrix();
+			glRotatef(-2.*b,0.,0.,W[2]);
+			while (i<MAXCOL)
+			{
+				g3x_Material(colmap[i],ambi,diff,spec,shin,1.);
+				glRotatef(a,0.,0.,1.);
+				glPushMatrix();
+					/* distance du centre (distance de o,distance de o,hauteur)*/
+					glTranslatef(1.,1.,0.);
+					glRotatef(i*a+angle,2.,0.,0.);
+					glRotatef(10.*b,W[0],W[1],W[2]);
+					glutSolidSphere(rayon/6,40,45);
+				glPopMatrix();
+				i += 1;
+			}
+		glPopMatrix();
 	}
-	glEnd();
-	glPopMatrix();
+
+	if(FLAG_PLANETS2)
+	{
+		/* les spheres animees autour du centre */
+		int i=0;
+		double a=360./6;
+		glPushMatrix();
+			glRotatef(-2.*b,0.,0.,W[2]);
+			while (i<MAXCOL)
+			{
+				g3x_Material(colmap[i],ambi,diff,spec,shin,1.);
+				glRotatef(a,0.,0.,1.);
+				glPushMatrix();
+					/* distance du centre (distance de o,distance de o,hauteur)*/
+					glTranslatef(0.,2.,0.);
+					glRotatef(i*a+angle,2.,0.,0.);
+					glRotatef(10.*b,W[0],W[1],W[2]);
+					glutSolidSphere(rayon/2,40,45);
+				glPopMatrix();
+				i += 1;
+			}
+		glPopMatrix();
+	}
+
+	if(FLAG_PLANETS3)
+	{
+		/* les spheres animees autour du centre */
+		int i=0;
+		double a=360./3;
+		glPushMatrix();
+			glRotatef(-2.*b,0.,0.,W[2]);
+			while (i<MAXCOL)
+			{
+				g3x_Material(colmap[i],ambi,diff,spec,shin,1.);
+				glRotatef(a,0.,0.,1.);
+				glPushMatrix();
+					/* distance du centre (distance de o,distance de o,hauteur)*/
+					glTranslatef(1.,2.,0.);
+					glRotatef(i*a+angle,2.,0.,0.);
+					glRotatef(10.*b,W[0],W[1],W[2]);
+					glutSolidSphere(rayon/3,40,45);
+				glPopMatrix();
+				i += 1;
+			}
+		glPopMatrix();
+	}
 }
 
 /*=    ACTION A EXECUTER EN SORTIE   =*/
@@ -146,21 +171,6 @@ static void camera_info(void)
 	fprintf(stderr,"coord. spheriques (d:%lf,theta:%lf,phi:%lf)\n",cam->dist,cam->theta,cam->phi);
 }
 
-
-static void draw2(){
-	glPushMatrix();
-	g3x_Material(G3Xr,.25,.25,.25,.25,.25);
-	glPointSize(.1);
-	G3Xpoint *v= Vrtx;
-	G3Xvector *n=Norm;
-	while(v<Vrtx+nbv){
-		glNormal3dv(*n);n++;
-		glVertex3dv(*v);v++;
-	}
-	glEnd();
-	glPopMatrix();
-}
-
 int main(int argc, char** argv)
 {
 
@@ -193,9 +203,9 @@ int main(int argc, char** argv)
 	g3x_FillColorMap(colmap,MAXCOL);
 
   /* d�finition des fonctions */
-  g3x_SetInitFunction(init2);     /* la fonction de sortie */
+  g3x_SetInitFunction(Init);     /* la fonction de sortie */
   g3x_SetExitFunction(Exit);     /* la fonction de sortie */
-  g3x_SetDrawFunction(draw2);     /* la fonction de Dessin */
+  g3x_SetDrawFunction(Draw);     /* la fonction de Dessin */
 	g3x_SetAnimFunction(Anim);
 
 	/* boucle d'ex�cution principale */
