@@ -10,7 +10,7 @@ ifeq ($(CC),g++) #en mode debug
   CCEXT=++
 endif
 
-#compil en mode 'debug' ou optmisée (-O2)
+#compil en mode 'debug' ou optmisÃ©e (-O2)
 DBG = no
 
 ifeq ($(DBG),yes) #en mode debug
@@ -26,17 +26,17 @@ src = src/
 # fichiers *.h locaux et lib.
 inc = -I./include $(incG3X) 
 
-exec = g3x_sphere g3x_tor g3x_cylinder g3x_cube g3x_cone g3x_skeleton g3x_example demo_scene3D g3x_solaire g3x_geometrics_forms
+exec = main spherepoint
 
 all : $(exec) clean
 
-# règle générique de création de xxx.o à partir de src/xxx.c
+# rÃ¨gle gÃ©nÃ©rique de crÃ©ation de xxx.o Ã  partir de src/xxx.c
 %.o : $(src)%.c
 	@echo "module $@"
 	@$(CC) $(CFLAGS) $(inc) -c $< -o $@
 	@echo "------------------------"
 
-# règle générique de création de l'executable xxx à partir de src/xxx.c (1 seul module)
+# rÃ¨gle gÃ©nÃ©rique de crÃ©ation de l'executable xxx Ã  partir de src/xxx.c (1 seul module)
 % : %.o
 	@echo "assemblage [$^]->$@"
 	@$(CC) $^ $(lib) -o $@
@@ -44,7 +44,7 @@ all : $(exec) clean
 	
 .PHONY : clean cleanall ?
 
-# informations sur les paramètres de compilation       
+# informations sur les paramÃ¨tres de compilation       
 ? :
 	@echo "---------compilation informations----------"
 	@echo "  processor      : $(PROCBIT)"
@@ -56,4 +56,3 @@ clean :
 	@rm -f *.o
 cleanall :
 	@rm -f *.o $(exec) *~ */*~
-	

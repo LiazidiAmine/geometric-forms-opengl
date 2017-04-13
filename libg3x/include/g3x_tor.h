@@ -9,7 +9,6 @@
 /*Variable globale*/
 G3Xpoint *Vrtx;
 G3Xvector *Norm;
-int *boolean;
 int nbv, nbn;
 	
 /*= FONCTION DE MODELISATION =*/
@@ -21,7 +20,46 @@ static void Init(void)
 	 * */
 	fprintf(stderr,"\nInit\n");	
 }
+static void Init2(){
+	
+	int nbp = 250;
+	int nbm = 250;
+	int i,j;
+	nbv = nbp*nbm; 
+	nbn = nbv;
+	
+	Vrtx = (G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
+	Norm = (G3Xvector *)calloc(nbn,sizeof(G3Xvector));
+	
+	double a = 2.*PI/nbv;
+	double phi = PI/nbp;
+	
+	G3Xpoint *v = Vrtx;
+	G3Xvector *n = Norm;
+	
+	/*bande du cilindre*/
 
+	double R = 1;
+	double r = 0.2;
+	/*disque de base */
+	for(i= nbv/5+1; i < nbv; i++){	
+		double t = g3x_Rand_Delta(1,1);
+		double k = g3x_Rand_Delta(0,1.9*PI);
+		double s = g3x_Rand_Delta(0,1.9*PI);
+		(*n)[0]= (R+r*cos(k))*cos(s);
+		(*v)[0] = (*n)[0];
+		(*n)[1]= (R+r*sin(k))*sin(s);
+		(*v)[1] = (*n)[1];
+		(*n)[2]= -1;
+		(*v)[2] = r*sin(k);
+		v++;
+		n++;
+	}
+	
+	
+	/*disque du haut*/
+	/*TODO*/
+}
 /*= FONCTION D'ANIMATION =*/
 static void Anim(void)
 {
@@ -57,17 +95,9 @@ static void draw2(){
 	glBegin(GL_POINTS);
 	G3Xpoint *v = Vrtx;
 	G3Xvector *n = Norm;
-	int *tab = boolean;
-	int i=0;
 	while(v < Vrtx+nbv){
-		
-			glNormal3dv(*n); 
-		if(tab[i] == 1){
-			glVertex3dv(*v);
-		}
-		n++;
-		i++;
-		v++;
+		glNormal3dv(*n); n++;
+		glVertex3dv(*v);v++;
 	}
 	glEnd();
 	glPopMatrix();	
