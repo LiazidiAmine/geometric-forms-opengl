@@ -4,14 +4,51 @@
 #define SPHERE 3
 #define TOR 4
 
-
+/* Structure d'une forme */
 typedef struct object{
   G3Xpoint *Vrtx;
   G3Xvector *Norm;
   int *display;
 }Object;
 /* Tableau de formes */
-Object o[5];
+Object shape[5];
+
+/* Structure d'un noeud d'arbre */
+typedef struct node{
+  int shape_name;
+  struct object *shape;
+  struct node *left;
+  struct node *right;
+} node;
+/* Initialisation de l'arbre */
+node *Tree = NULL;
+
+/*
+ * FONCTIONS DE MANIPULATION D'ARBRE
+ */
+ static int RIGHT = 1;
+ static int LEFT = 0;
+ void addNode(node **tree, int key, Object **shape, int direction)
+ {
+     node *tmpNode;
+     node *tmpTree = *tree;
+
+     node *elem = malloc(sizeof(node));
+     elem->shape_name = key;
+     elem->shape = *shape;
+     elem->left = NULL;
+     elem->right = NULL;
+
+     if(tmpTree){
+       tmpNode = tmpTree;
+       if(direction == LEFT){
+         tmpNode->left = elem;
+       }else{
+         tmpNode->right = elem;
+       }
+     }else  *tree = elem;
+ }
+
 /* flag d'affichag/masquage */
 static bool FLAG_CUBE=true;
 static bool FLAG_CONE=true;
@@ -32,7 +69,7 @@ static double ambi = 0.2;
 static double diff = 0.3;
 static double spec = 0.4;
 static double shin = 0.5;
-static double densite = 1000.;
+static int density = 1000;
 
 #define MAXCOL 25
 static G3Xcolor colmap[MAXCOL];
@@ -40,17 +77,17 @@ static G3Xcolor colmap[MAXCOL];
 int nbv, nbn;
 
 static void InitSphere(void){
-  int N = densite/2;
-  int P = densite/2;
+  int N = density/2;
+  int P = density/2;
   G3Xpoint *p;
   G3Xvector *n;
   int *tab;
-    o[SPHERE].Vrtx = (G3Xpoint *)calloc(N*P,sizeof(G3Xpoint));
-    o[SPHERE].Norm = (G3Xvector *)calloc(N*P,sizeof(G3Xvector));
-    o[SPHERE].display =(int *)calloc(N*P,sizeof(int));
-    p = o[SPHERE].Vrtx;
-    n = o[SPHERE].Norm;
-    tab=o[SPHERE].display;
+    shape[SPHERE].Vrtx = (G3Xpoint *)calloc(N*P,sizeof(G3Xpoint));
+    shape[SPHERE].Norm = (G3Xvector *)calloc(N*P,sizeof(G3Xvector));
+    shape[SPHERE].display =(int *)calloc(N*P,sizeof(int));
+    p = shape[SPHERE].Vrtx;
+    n = shape[SPHERE].Norm;
+    tab=shape[SPHERE].display;
     double theta = 2*PI/N,phi= PI/P;
 
     int i=0;
@@ -70,26 +107,26 @@ static void InitSphere(void){
     for(i=0;i<N*P;i++){
       tab[i] =1;
     }
-    memcpy(o[SPHERE].Norm,o[SPHERE].Vrtx,N*P*sizeof(G3Xcoord));
+    memcpy(shape[SPHERE].Norm,shape[SPHERE].Vrtx,N*P*sizeof(G3Xcoord));
 }
 
 static void InitCube(){
 
-  int nbp = densite/2;
-  int nbm = densite/2;
+  int nbp = density/2;
+  int nbm = density/2;
   int i,j;
 
 
-  o[CUBE].Vrtx = (G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
-  o[CUBE].Norm = (G3Xvector *)calloc(nbn,sizeof(G3Xvector));
-  o[CUBE].display =(int *)calloc(nbn,sizeof(int));
+  shape[CUBE].Vrtx = (G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
+  shape[CUBE].Norm = (G3Xvector *)calloc(nbn,sizeof(G3Xvector));
+  shape[CUBE].display =(int *)calloc(nbn,sizeof(int));
 
   double a = 2.*PI/nbv;
   double phi = PI/nbp;
 
-  G3Xpoint *v = o[CUBE].Vrtx;
-  G3Xvector *n = o[CUBE].Norm;
-  int *boolean =o[CUBE].display;
+  G3Xpoint *v = shape[CUBE].Vrtx;
+  G3Xvector *n = shape[CUBE].Norm;
+  int *boolean =shape[CUBE].display;
 
   /*bande du cilindre*/
   double r = g3x_Rand_Delta(0,1);
@@ -189,22 +226,22 @@ static void InitCube(){
 
 static void InitCone(){
 
-  int nbp = densite/2;
-  int nbm = densite/2;
+  int nbp = density/2;
+  int nbm = density/2;
   int i,j;
   nbv = nbp*nbm;
   nbn = nbv;
 
-  o[CONE].Vrtx = (G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
-  o[CONE].Norm = (G3Xvector *)calloc(nbn,sizeof(G3Xvector));
-  o[CONE].display =(int *)calloc(nbn,sizeof(int));
+  shape[CONE].Vrtx = (G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
+  shape[CONE].Norm = (G3Xvector *)calloc(nbn,sizeof(G3Xvector));
+  shape[CONE].display =(int *)calloc(nbn,sizeof(int));
 
   double a = 2.*PI/nbv;
   double phi = PI/nbp;
 
-  G3Xpoint *v = o[CONE].Vrtx;
-  G3Xvector *n = o[CONE].Norm;
-  int *tab= o[CONE].display;
+  G3Xpoint *v = shape[CONE].Vrtx;
+  G3Xvector *n = shape[CONE].Norm;
+  int *tab= shape[CONE].display;
 
   for(i= nbv/5+1; i < nbv; i++){
     double t = g3x_Rand_Delta(1,1);
@@ -239,10 +276,10 @@ static void InitCone(){
 
 static void drawCone(){
 
-  G3Xpoint *v = o[CONE].Vrtx;
-  G3Xvector *n = o[CONE].Norm ;
-  int *tab = o[CONE].display;
-  while(v < o[CONE].Vrtx+nbv){
+  G3Xpoint *v = shape[CONE].Vrtx;
+  G3Xvector *n = shape[CONE].Norm ;
+  int *tab = shape[CONE].display;
+  while(v < shape[CONE].Vrtx+nbv){
 
       glNormal3dv(*n);
       glVertex3dv(*v);
@@ -254,10 +291,10 @@ static void drawCone(){
 
 static void drawCube(){
 
-  G3Xpoint *v = o[CUBE].Vrtx;
-  G3Xvector *n = o[CUBE].Norm ;
-  int *tab = o[CUBE].display;
-  while(v < o[CUBE].Vrtx+nbv){
+  G3Xpoint *v = shape[CUBE].Vrtx;
+  G3Xvector *n = shape[CUBE].Norm ;
+  int *tab = shape[CUBE].display;
+  while(v < shape[CUBE].Vrtx+nbv){
 
       glNormal3dv(*n);
       glVertex3dv(*v);
@@ -269,10 +306,10 @@ static void drawCube(){
 
 static void drawSphere(){
 
-  G3Xpoint *v = o[SPHERE].Vrtx;
-  G3Xvector *n = o[SPHERE].Norm ;
-  int *tab = o[SPHERE].display;
-  while(v < o[SPHERE].Vrtx+nbv){
+  G3Xpoint *v = shape[SPHERE].Vrtx;
+  G3Xvector *n = shape[SPHERE].Norm ;
+  int *tab = shape[SPHERE].display;
+  while(v < shape[SPHERE].Vrtx+nbv){
 
       glNormal3dv(*n);
       glVertex3dv(*v);
