@@ -26,6 +26,9 @@ node *Tree = NULL;
 /*
  * FONCTIONS DE MANIPULATION D'ARBRE
  */
+ /* TODO il faut que je rajoute un code d'operations dans la structure de noeud et
+ ensuite une fonction compute qui prend en parametre un noeud, et utilise ses deux fils
+ afin d'avoir le resultat de l'operation */
  static int RIGHT = 1;
  static int LEFT = 0;
  void addNode(node **tree, int key, Object **shape, int direction)
