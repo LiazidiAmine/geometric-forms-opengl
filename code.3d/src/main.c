@@ -435,10 +435,6 @@ int isCubeIntersectPoint(Object o, G3Xpoint p){
 }
 
 /*o1 inclu dans 02*/
-/* o1 est l'objet dont on modifie l'affichage
- * o2 est l'objet sur lequel on teste les points d'intersections
- * fonction qui prend en premier parametre o2, et en second les
- * points de o1 */
 void intersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
 	int i;
 	int N = density/2;
