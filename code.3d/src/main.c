@@ -81,6 +81,10 @@ static G3Xcolor colmap[MAXCOL];
 
 int nbv, nbn;
 
+/*
+ * Fonctions utilitaires
+ */
+
 int max(int a, int b, int c){
   if(a>b && a>c){
     return a;
@@ -97,14 +101,48 @@ int pow2(int a){
 	return a*a;
 }
 
-static initZoomValue(){
-	int i=1;
-	for(;i<5;i++){
-		shape[i].zoom=1;
-	}
-}
+/*
+ * Gestion du zoom
+ */
+ static initZoomValue(){
+ 	int i=1;
+ 	for(;i<5;i++){
+ 		shape[i].zoom=1;
+ 	}
+ }
 
+ static double zoom=1;
+ static double k=1.005;
 
+ void zoomFunc(Object *shape){
+  G3Xpoint *v = shape->Vrtx;
+   G3Xpoint *m = shape->Cpy;
+   G3Xvector *n = shape->Norm;
+   while(v < shape->Vrtx+nbv){
+   	if(zoom<1.05 && zoom>0.95){
+   		return;
+
+   	}else if(zoom>1){
+   		(*v)[0]*=k;
+   		(*v)[1]*=k;
+   		(*v)[2]*=k;
+
+   	}
+   	else{
+   		(*v)[0]/=k;
+   		(*v)[1]/=k;
+   		(*v)[2]/=k;
+   	}
+     v++;
+
+   }
+   shape->zoom=zoom;
+
+ }
+
+/*
+ * Fonctions d'initialisation des formes
+ */
 
 static void InitSphere(void){
   int N = density/2;
@@ -158,12 +196,12 @@ static void InitCube(){
   G3Xvector *n = shape[CUBE].Norm;
   int *boolean =shape[CUBE].display;
 
-  
+
   double r = g3x_Rand_Delta(0,1);
   double theta = g3x_Rand_Delta(0,2*PI);
 
 
-  
+
   for(i=0; i < nbv/6; i++){
     double r = g3x_Rand_Delta(0,1);
     double theta = g3x_Rand_Delta(0,2*PI);
@@ -310,34 +348,9 @@ static void InitCone(){
 
 }
 
-static double zoom=1;
-static double k=1.005;
-
-void zoomFunc(Object *shape){
- G3Xpoint *v = shape->Vrtx;
-  G3Xpoint *m = shape->Cpy;
-  G3Xvector *n = shape->Norm;
-  while(v < shape->Vrtx+nbv){
-  	if(zoom<1.05 && zoom>0.95){
-  		return;
-  		
-  	}else if(zoom>1){
-  		(*v)[0]*=k;
-  		(*v)[1]*=k;
-  		(*v)[2]*=k;
-
-  	}
-  	else{
-  		(*v)[0]/=k;
-  		(*v)[1]/=k;
-  		(*v)[2]/=k;
-  	}
-    v++;
-
-  }
-  shape->zoom=zoom;
-
-}
+/*
+ * Fonctions de dessins
+ */
 
 static void drawCone(){
 
@@ -347,10 +360,10 @@ static void drawCone(){
   int *tab = shape[CONE].display;
   int i=0,j=0;
   zoomFunc(&shape[CONE]);
-  printf("%2f\n",zoom);
+
   while(v < shape[CONE].Vrtx+nbv){
-  	if(tab[i]==1){
-  	
+  	if(tab[i] > 0){
+
       glNormal3dv(*n);
       glVertex3dv(*v);
   	}
@@ -369,7 +382,7 @@ static void drawCube(){
   int i=0;
   zoomFunc(&shape[CUBE]);
   while(v < shape[CUBE].Vrtx+nbv){
-  	if(tab[i]==1){
+  	if(tab[i] > 0){
       glNormal3dv(*n);
       glVertex3dv(*v);
     }
@@ -388,30 +401,24 @@ static void drawSphere(){
   int i=0;
   zoomFunc(&shape[SPHERE]);
   while(v < shape[SPHERE].Vrtx+nbv){
-  	  if(tab[i]==1){
-      glNormal3dv(*n);
-      glVertex3dv(*v);
-  }
-    n++;
-    v++;
-    i++;
+  	  if(tab[i] > 0){
+        glNormal3dv(*n);
+        glVertex3dv(*v);
+      }
+      n++;
+      v++;
+      i++;
   }
 
 }
+
+/*
+ * Gestion de l'intersection d'objets
+ */
 
 /*intesection*/
-/*o1 inclu dans 02*/
-void set_boolean_ptin(Object o1,Object o2,int(*function)(Object,G3Xpoint)){
-	int i;
-	int N = density/2;
-  	int P = density/2;
-	for(i=0;i<N*P;i++){
-		*o1.display=(*function)(o2,o1.Vrtx[i]);
-		/*printf("value %d\n",(*o1.display));*/
-	}
-}
 
-int sphere_ptin(Object o, G3Xpoint p){
+int isSphereIntersectPoint(Object o, G3Xpoint p){
   G3Xpoint point;
   point[0]=p[0]*(*o.Vrtx[0]);
   point[1]=p[1]*(*o.Vrtx[1]);
@@ -419,7 +426,7 @@ int sphere_ptin(Object o, G3Xpoint p){
   return (pow2(point[0])+pow2(point[1])+pow2(point[2]) < 1 ? 0 : 1);
 }
 
-int cube_ptin(Object o, G3Xpoint p){
+int isCubeIntersectPoint(Object o, G3Xpoint p){
   G3Xpoint point;
   point[0]=p[0]*(*o.Vrtx[0]);
   point[1]=p[1]*(*o.Vrtx[1]);
@@ -427,8 +434,23 @@ int cube_ptin(Object o, G3Xpoint p){
   return (max(point[0],point[1],point[2]) < 1 ? 0 : 1);
 }
 
+/*o1 inclu dans 02*/
+/* o1 est l'objet dont on modifie l'affichage
+ * o2 est l'objet sur lequel on teste les points d'intersections
+ * fonction qui prend en premier parametre o2, et en second les
+ * points de o1 */
+void intersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
+	int i;
+	int N = density/2;
+  	int P = density/2;
+	for(i=0;i<N*P;i++){
+		o1.display[i]=(*function)(o2,o1.Vrtx[i]);
+	}
+}
 
-
+/*
+ * Fonctions principales du programme
+ */
 
 static void Init(void)
 {
@@ -436,11 +458,14 @@ static void Init(void)
   InitCone();
   InitCube();
   InitSphere();
+
+  intersectShapes(shape[CUBE], shape[SPHERE], isCubeIntersectPoint);
+  intersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
 }
 /*= FONCTION D'ANIMATION =*/
 static void Anim(void)
 {
-	
+
 }
 
 
@@ -451,7 +476,7 @@ static void Draw(void)
 {
   glBegin(GL_POINTS);
   /*glPointSize(1.);*/
- 
+
   glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     if(FLAG_CUBE){
@@ -469,7 +494,7 @@ static void Draw(void)
     g3x_Material(bleu,ambi,diff,spec,shin,1.);
     drawSphere();
   }
- set_boolean_ptin(shape[CONE],shape[CUBE],cube_ptin);
+
   glEnd();
 
 }
