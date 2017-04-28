@@ -8,7 +8,9 @@
 typedef struct object{
   G3Xpoint *Vrtx;
   G3Xvector *Norm;
+  G3Xpoint *Cpy;
   int *display;
+  int zoom;
 }Object;
 /* Tableau de formes */
 Object shape[5];
@@ -72,12 +74,37 @@ static double ambi = 0.2;
 static double diff = 0.3;
 static double spec = 0.4;
 static double shin = 0.5;
-static int density = 1000;
+static int density = 500;
 
 #define MAXCOL 25
 static G3Xcolor colmap[MAXCOL];
 
 int nbv, nbn;
+
+int max(int a, int b, int c){
+  if(a>b && a>c){
+    return a;
+  }
+  else if(b>c){
+    return b;
+  }
+  else{
+    return c;
+  }
+}
+
+int pow2(int a){
+	return a*a;
+}
+
+static initZoomValue(){
+	int i=1;
+	for(;i<5;i++){
+		shape[i].zoom=1;
+	}
+}
+
+
 
 static void InitSphere(void){
   int N = density/2;
@@ -131,17 +158,17 @@ static void InitCube(){
   G3Xvector *n = shape[CUBE].Norm;
   int *boolean =shape[CUBE].display;
 
-  /*bande du cilindre*/
+  
   double r = g3x_Rand_Delta(0,1);
   double theta = g3x_Rand_Delta(0,2*PI);
 
 
-  /*disque de base */
+  
   for(i=0; i < nbv/6; i++){
     double r = g3x_Rand_Delta(0,1);
     double theta = g3x_Rand_Delta(0,2*PI);
     double phi = g3x_Rand_Delta(0,2*PI);
-    boolean[i]=0;
+    boolean[i]=1;
     (*n)[0]= 0;
     (*v)[0] =1;
     (*n)[1]= 0;
@@ -238,12 +265,15 @@ static void InitCone(){
   shape[CONE].Vrtx = (G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
   shape[CONE].Norm = (G3Xvector *)calloc(nbn,sizeof(G3Xvector));
   shape[CONE].display =(int *)calloc(nbn,sizeof(int));
+  shape[CONE].Cpy=(G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
 
   double a = 2.*PI/nbv;
   double phi = PI/nbp;
 
   G3Xpoint *v = shape[CONE].Vrtx;
+  G3Xpoint *cpy = shape[CONE].Cpy;
   G3Xvector *n = shape[CONE].Norm;
+
   int *tab= shape[CONE].display;
 
   for(i= nbv/5+1; i < nbv; i++){
@@ -251,10 +281,14 @@ static void InitCone(){
     double k = g3x_Rand_Delta(0,PI);
     (*n)[0]= (1-t/2)*cos(i*k);
     (*v)[0] = (*n)[0];
+
     (*n)[1]= (1-t/2)*sin(i*k);
     (*v)[1] = (*n)[1];
     (*n)[2]= t;
     (*v)[2] = (*n)[2];
+    (*cpy)[0]=((*v)[0]);
+    (*cpy)[1]=((*v)[1]);
+    (*cpy)[2]=((*v)[2]);
     tab[i]=1;
     v++;
     n++;
@@ -276,18 +310,53 @@ static void InitCone(){
 
 }
 
+static double zoom=1;
+static double k=1.005;
+
+void zoomFunc(Object *shape){
+ G3Xpoint *v = shape->Vrtx;
+  G3Xpoint *m = shape->Cpy;
+  G3Xvector *n = shape->Norm;
+  while(v < shape->Vrtx+nbv){
+  	if(zoom<1.05 && zoom>0.95){
+  		return;
+  		
+  	}else if(zoom>1){
+  		(*v)[0]*=k;
+  		(*v)[1]*=k;
+  		(*v)[2]*=k;
+
+  	}
+  	else{
+  		(*v)[0]/=k;
+  		(*v)[1]/=k;
+  		(*v)[2]/=k;
+  	}
+    v++;
+
+  }
+  shape->zoom=zoom;
+
+}
 
 static void drawCone(){
 
   G3Xpoint *v = shape[CONE].Vrtx;
+  G3Xpoint *m = shape[CONE].Cpy;
   G3Xvector *n = shape[CONE].Norm ;
   int *tab = shape[CONE].display;
+  int i=0,j=0;
+  zoomFunc(&shape[CONE]);
+  printf("%2f\n",zoom);
   while(v < shape[CONE].Vrtx+nbv){
-
+  	if(tab[i]==1){
+  	
       glNormal3dv(*n);
       glVertex3dv(*v);
+  	}
     n++;
     v++;
+    i++;
   }
 
 }
@@ -297,12 +366,16 @@ static void drawCube(){
   G3Xpoint *v = shape[CUBE].Vrtx;
   G3Xvector *n = shape[CUBE].Norm ;
   int *tab = shape[CUBE].display;
+  int i=0;
+  zoomFunc(&shape[CUBE]);
   while(v < shape[CUBE].Vrtx+nbv){
-
+  	if(tab[i]==1){
       glNormal3dv(*n);
       glVertex3dv(*v);
+    }
     n++;
     v++;
+    i++;
   }
 
 }
@@ -312,37 +385,77 @@ static void drawSphere(){
   G3Xpoint *v = shape[SPHERE].Vrtx;
   G3Xvector *n = shape[SPHERE].Norm ;
   int *tab = shape[SPHERE].display;
+  int i=0;
+  zoomFunc(&shape[SPHERE]);
   while(v < shape[SPHERE].Vrtx+nbv){
-
+  	  if(tab[i]==1){
       glNormal3dv(*n);
       glVertex3dv(*v);
+  }
     n++;
     v++;
+    i++;
   }
 
 }
 
+/*intesection*/
+/*o1 inclu dans 02*/
+void set_boolean_ptin(Object o1,Object o2,int(*function)(Object,G3Xpoint)){
+	int i;
+	int N = density/2;
+  	int P = density/2;
+	for(i=0;i<N*P;i++){
+		*o1.display=(*function)(o2,o1.Vrtx[i]);
+		/*printf("value %d\n",(*o1.display));*/
+	}
+}
+
+int sphere_ptin(Object o, G3Xpoint p){
+  G3Xpoint point;
+  point[0]=p[0]*(*o.Vrtx[0]);
+  point[1]=p[1]*(*o.Vrtx[1]);
+  point[2]=p[2]*(*o.Vrtx[2]);
+  return (pow2(point[0])+pow2(point[1])+pow2(point[2]) < 1 ? 0 : 1);
+}
+
+int cube_ptin(Object o, G3Xpoint p){
+  G3Xpoint point;
+  point[0]=p[0]*(*o.Vrtx[0]);
+  point[1]=p[1]*(*o.Vrtx[1]);
+  point[2]=p[2]*(*o.Vrtx[2]);
+  return (max(point[0],point[1],point[2]) < 1 ? 0 : 1);
+}
+
+
+
+
 static void Init(void)
 {
-	InitCone();
+	initZoomValue();
+  InitCone();
   InitCube();
   InitSphere();
 }
 /*= FONCTION D'ANIMATION =*/
 static void Anim(void)
 {
-
+	
 }
+
+
+
 
 /*= FONCTION DE DESSIN PRINCIPALE =*/
 static void Draw(void)
 {
   glBegin(GL_POINTS);
   /*glPointSize(1.);*/
-
+ 
   glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     if(FLAG_CUBE){
+    glTranslatef(0.,10.,10.);
       g3x_Material(rouge,ambi,diff,spec,shin,1.);
       drawCube();
     }
@@ -356,8 +469,7 @@ static void Draw(void)
     g3x_Material(bleu,ambi,diff,spec,shin,1.);
     drawSphere();
   }
-
-
+ set_boolean_ptin(shape[CONE],shape[CUBE],cube_ptin);
   glEnd();
 
 }
@@ -383,7 +495,7 @@ static void Exit(void)
 int main(int argc, char** argv)
 {
   /* initialisation de la fenêtre graphique et paramétrage Gl */
-  g3x_InitWindow(*argv,768,512);
+  g3x_InitWindow(*argv,1024,512);
 
   /* paramètres caméra */
   /* param. géométrique de la caméra. cf. gluLookAt(...) */
@@ -395,6 +507,9 @@ int main(int argc, char** argv)
 	g3x_CreateSwitch("cube ",&FLAG_CUBE ,"affiche/masques le cube     ");
 	g3x_CreateSwitch("cone  ",&FLAG_CONE  ,"affiche/masques le cone     ");
 
+	/*zoom*/
+
+	g3x_CreateScrollv_d("zoom",&zoom,0.8,1.2,0.1,"zoom");
   /* initialisation d'une carte de couleurs*/
 	g3x_FillColorMap(colmap,MAXCOL);
 
