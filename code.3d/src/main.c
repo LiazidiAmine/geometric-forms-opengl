@@ -440,7 +440,8 @@ void intersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
 	int N = density/2;
   	int P = density/2;
 	for(i=0;i<N*P;i++){
-		o1.display[i]=(*function)(o2,o1.Vrtx[i]);
+		o2.display[i]=(*function)(o2,o1.Vrtx[i]);
+
 	}
 }
 
@@ -453,9 +454,9 @@ static void Init(void)
 	initZoomValue();
   InitCone();
   InitCube();
-  InitSphere();
+  /*InitSphere();*/
 
-  intersectShapes(shape[CUBE], shape[SPHERE], isCubeIntersectPoint);
+  /*intersectShapes(shape[CUBE], shape[SPHERE], isCubeIntersectPoint);*/
   intersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
 }
 /*= FONCTION D'ANIMATION =*/
@@ -486,10 +487,10 @@ static void Draw(void)
     }
   glDisable(GL_BLEND);
 
-  if(FLAG_SPHERE){
+/*  if(FLAG_SPHERE){
     g3x_Material(bleu,ambi,diff,spec,shin,1.);
     drawSphere();
-  }
+  }*/
 
   glEnd();
 
