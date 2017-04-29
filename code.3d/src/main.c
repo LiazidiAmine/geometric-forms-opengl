@@ -74,7 +74,7 @@ static double ambi = 0.2;
 static double diff = 0.3;
 static double spec = 0.4;
 static double shin = 0.5;
-static int density = 500;
+static int density = 750;
 
 #define MAXCOL 25
 static G3Xcolor colmap[MAXCOL];
@@ -434,13 +434,21 @@ int isCubeIntersectPoint(Object o, G3Xpoint p){
   return (max(point[0],point[1],point[2]) < 1 ? 0 : 1);
 }
 
+int isConeIntersectPoint(Object o,G3Xpoint p){
+  G3Xpoint point;
+  point[0]=p[0]*(*o.Vrtx[0]);
+  point[1]=p[1]*(*o.Vrtx[1]);
+  point[2]=p[2]*(*o.Vrtx[2]);
+  return (pow2(point[0])+pow2(point[1])-pow2(point[2])*pow2(tan(PI/(500/2))) < 1 ? 0 : 1);
+}
+
 /*o1 inclu dans 02*/
 void intersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
 	int i;
 	int N = density/2;
   	int P = density/2;
 	for(i=0;i<N*P;i++){
-		o2.display[i]=(*function)(o2,o1.Vrtx[i]);
+		o2.display[i]=!(*function)(o2,o1.Vrtx[i]);
 
 	}
 }
@@ -457,6 +465,7 @@ static void Init(void)
   /*InitSphere();*/
 
   /*intersectShapes(shape[CUBE], shape[SPHERE], isCubeIntersectPoint);*/
+  intersectShapes(shape[CONE], shape[CUBE], isConeIntersectPoint);
   intersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
 }
 /*= FONCTION D'ANIMATION =*/
