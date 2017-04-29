@@ -480,10 +480,20 @@ static void Init(void)
 {
 	initZoomValue();
   InitCone();
-  InitCube();
-  InitSphere();
 
-  intersectionCubeCone();
+  int i;
+  int N = density/2;
+    int P = density/2;
+  for(i=0;i<N*P;i++){
+    if(i>5){
+    shape[CONE].display[i]=0;
+    }
+  }
+
+  /*InitCube();
+  InitSphere();*/
+
+  /*intersectionCubeCone();*/
 /*
   notIntersectShapes(shape[SPHERE], shape[CONE], isSphereIntersectPoint);
   notIntersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
@@ -506,21 +516,21 @@ static void Draw(void)
 
   glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    if(FLAG_CUBE){
-    glTranslatef(0.,10.,10.);
+  glTranslatef(0.,10.,10.);
+    /*if(FLAG_CUBE){
       g3x_Material(rouge,ambi,diff,spec,shin,1.);
       drawCube();
-    }
+    }*/
     if(FLAG_CONE){
       g3x_Material(vert,ambi,diff,spec,shin,alpha);
       drawCone();
     }
   glDisable(GL_BLEND);
 
-  if(FLAG_SPHERE){
+  /*if(FLAG_SPHERE){
     g3x_Material(bleu,ambi,diff,spec,shin,1.);
     drawSphere();
-  }
+  }*/
 
   glEnd();
 
