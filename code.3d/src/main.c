@@ -471,6 +471,11 @@ void unionCubeCone(){
   intersectShapes(shape[CONE], shape[CUBE], isConeIntersectPoint);
 notIntersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
 }
+
+void intersectionCubeCone(){
+  notIntersectShapes(shape[CONE], shape[CUBE], isConeIntersectPoint);
+  intersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
+}
 static void Init(void)
 {
 	initZoomValue();
@@ -478,7 +483,7 @@ static void Init(void)
   InitCube();
   InitSphere();
 
-  unionCubeCone();
+  intersectionCubeCone();
 /*
   notIntersectShapes(shape[SPHERE], shape[CONE], isSphereIntersectPoint);
   notIntersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
