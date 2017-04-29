@@ -74,7 +74,7 @@ static double ambi = 0.2;
 static double diff = 0.3;
 static double spec = 0.4;
 static double shin = 0.5;
-static int density = 750;
+static int density = 1200;
 
 #define MAXCOL 25
 static G3Xcolor colmap[MAXCOL];
@@ -428,9 +428,9 @@ int isSphereIntersectPoint(Object o, G3Xpoint p){
 
 int isCubeIntersectPoint(Object o, G3Xpoint p){
   G3Xpoint point;
-  point[0]=p[0]*(*o.Vrtx[0]);
-  point[1]=p[1]*(*o.Vrtx[1]);
-  point[2]=p[2]*(*o.Vrtx[2]);
+  point[0]=fabs(p[0]*(*o.Vrtx[0]));
+  point[1]=fabs(p[1]*(*o.Vrtx[1]));
+  point[2]=fabs(p[2]*(*o.Vrtx[2]));
   return (max(point[0],point[1],point[2]) < 1 ? 0 : 1);
 }
 
@@ -448,25 +448,41 @@ void intersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
 	int N = density/2;
   	int P = density/2;
 	for(i=0;i<N*P;i++){
-		o2.display[i]=!(*function)(o2,o1.Vrtx[i]);
+		o1.display[i]=!(*function)(o2,o1.Vrtx[i]);
 
 	}
+}
+
+void notIntersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
+  int i;
+  int N = density/2;
+    int P = density/2;
+  for(i=0;i<N*P;i++){
+    o1.display[i]=(*function)(o2,o1.Vrtx[i]);
+
+  }
 }
 
 /*
  * Fonctions principales du programme
  */
 
+void unionCubeCone(){
+  intersectShapes(shape[CONE], shape[CUBE], isConeIntersectPoint);
+notIntersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
+}
 static void Init(void)
 {
 	initZoomValue();
   InitCone();
   InitCube();
-  /*InitSphere();*/
+  InitSphere();
 
-  /*intersectShapes(shape[CUBE], shape[SPHERE], isCubeIntersectPoint);*/
-  intersectShapes(shape[CONE], shape[CUBE], isConeIntersectPoint);
-  intersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
+  unionCubeCone();
+/*
+  notIntersectShapes(shape[SPHERE], shape[CONE], isSphereIntersectPoint);
+  notIntersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
+  fprintf(stderr, "do\n");*/
 }
 /*= FONCTION D'ANIMATION =*/
 static void Anim(void)
@@ -496,10 +512,10 @@ static void Draw(void)
     }
   glDisable(GL_BLEND);
 
-/*  if(FLAG_SPHERE){
+  if(FLAG_SPHERE){
     g3x_Material(bleu,ambi,diff,spec,shin,1.);
     drawSphere();
-  }*/
+  }
 
   glEnd();
 
