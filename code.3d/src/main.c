@@ -3,6 +3,7 @@
 #define CUBE 2
 #define SPHERE 3
 #define TOR 4
+#define CYLINDER 5
 
 /* Structure d'une forme */
 typedef struct object{
@@ -13,7 +14,7 @@ typedef struct object{
   int zoom;
 }Object;
 /* Tableau de formes */
-Object shape[5];
+Object shape[10];
 
 /* Structure d'un noeud d'arbre */
 typedef struct node{
@@ -58,6 +59,8 @@ node *Tree = NULL;
 static bool FLAG_CUBE=true;
 static bool FLAG_CONE=true;
 static bool FLAG_SPHERE =true;
+static bool FLAG_TORE=true;
+static bool FLAG_CYLINDER=true;
 /* des couleurs prédéfinies */
 static G3Xcolor rouge  ={1.0,0.0,0.0};
 static G3Xcolor jaune  ={1.0,1.0,0.0};
@@ -292,6 +295,43 @@ static void InitCube(){
   /*TODO*/
 }
 
+static void initTore(){
+	
+	int nbp = density/2;
+  int nbm = density/2;
+	int i,j;
+	
+	
+	shape[TOR].Vrtx = (G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
+	shape[TOR].Norm = (G3Xvector *)calloc(nbn,sizeof(G3Xvector));
+	shape[TOR].display =(int *)calloc(nbn,sizeof(int));
+	double a = 2.*PI/nbp;
+	double phi = PI/nbp;
+	
+	G3Xpoint *v = shape[TOR].Vrtx;
+	G3Xvector *n = shape[TOR].Norm;
+	int *tab= shape[TOR].display;
+	double R = 1;
+	double r = 0.2;
+
+	for(i= 0; i < nbv; i++){	
+		double t = g3x_Rand_Delta(1,1);
+		double k = g3x_Rand_Delta(0,1.9*PI);
+		double s = g3x_Rand_Delta(0,1.9*PI);
+		(*n)[0]= (R+r*cos(k))*cos(s);
+		(*v)[0] = (*n)[0];
+		(*n)[1]= (R+r*sin(k))*sin(s);
+		(*v)[1] = (*n)[1];
+		(*n)[2]= -1;
+		(*v)[2] = r*sin(k);
+		tab[i]=1;
+		v++;
+		n++;
+	}
+	
+
+}
+
 static void InitCone(){
 
   int nbp = density/2;
@@ -348,9 +388,116 @@ static void InitCone(){
 
 }
 
+static void InitCylinder(){
+  
+  int nbp = density/2;
+  int nbm = density/2;
+  int i,j;
+  nbv = nbp*nbm; 
+  nbn = nbv;
+  
+  shape[CYLINDER].Vrtx = (G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
+  shape[CYLINDER].Norm = (G3Xvector *)calloc(nbn,sizeof(G3Xvector));
+  shape[CYLINDER].display =(int *)calloc(nbn,sizeof(int));
+  
+  double a = 2.*PI/nbv;
+  double phi = PI/nbp;
+  
+  G3Xpoint *v = shape[CYLINDER].Vrtx ;
+  G3Xvector *n = shape[CYLINDER].Norm;
+  int *tab= shape[CYLINDER].display;
+  
+  /*bande du cilindre*/
+  double r = g3x_Rand_Delta(0,1);
+  double theta = g3x_Rand_Delta(0,2*PI);
+  for(i= 0; i < nbv/3; i++){  
+    double t = g3x_Rand_Delta(1,1);
+    double k = g3x_Rand_Delta(0,PI);
+    (*n)[0]=cos(i*k);
+    (*v)[0] = (*n)[0];
+    (*n)[1]=sin(i*k);
+    (*v)[1] = (*n)[1];
+    (*n)[2]= t;
+    (*v)[2] = (*n)[2];
+    tab[i]=1;
+    v++;
+    n++;
+  }
+  
+  /*disque de base */
+  for(i=nbv/3; i < nbv*2/3; i++){
+    double r = g3x_Rand_Delta(0,1);
+    double theta = g3x_Rand_Delta(0,2*PI);
+    (*n)[0]= 0;
+    (*v)[0] = r*cos(theta);
+    (*n)[1]= 0;
+    (*v)[1] = r*sin(theta);
+    (*n)[2]= -1;
+    (*v)[2] = 0;
+    tab[i]=1;
+    v++;
+    n++;
+  }
+
+  /*disque du haut*/
+  /*TODO*/
+  /*disque de base */
+  for(i=nbv*2/3; i < nbv; i++){
+    double t = g3x_Rand_Delta(1,1);
+    double r = g3x_Rand_Delta(0,1);
+    double theta = g3x_Rand_Delta(0,2*PI);
+    (*n)[0]= 0;
+    (*v)[0] = r*cos(theta);
+    (*n)[1]= 0;
+    (*v)[1] = r*sin(theta);
+    (*n)[2]= -1;
+    (*v)[2] = 2;
+    tab[i]=1;
+    v++;
+    n++;
+  }
+}
+
 /*
  * Fonctions de dessins
  */
+static void drawTore(){
+
+  G3Xpoint *v = shape[TOR].Vrtx;
+  G3Xvector *n = shape[TOR].Norm ;
+  int *tab = shape[TOR].display;
+  int i=0;
+  zoomFunc(&shape[TOR]);
+  while(v < shape[TOR].Vrtx+nbv){
+if(tab[i] > 0){
+    glNormal3dv(*n); 
+    glVertex3dv(*v);
+}
+    n++;
+    v++;
+  }
+
+}
+
+static void drawCylinder(){
+
+  G3Xpoint *v = shape[CYLINDER].Vrtx;
+  G3Xvector *n = shape[CYLINDER].Norm ;
+  int *tab = shape[CYLINDER].display;
+  int i=0;
+  zoomFunc(&shape[CYLINDER]);
+  while(v < shape[CYLINDER].Vrtx+nbv){
+    if(tab[i] > 0){
+    glNormal3dv(*n); 
+    glVertex3dv(*v);
+  }
+  v++;
+  n++;
+  i++;
+  }
+
+}
+
 
 static void drawCone(){
 
@@ -363,7 +510,6 @@ static void drawCone(){
 
   while(v < shape[CONE].Vrtx+nbv){
   	if(tab[i] > 0){
-
       glNormal3dv(*n);
       glVertex3dv(*v);
   	}
@@ -417,7 +563,7 @@ static void drawSphere(){
  */
 
 /*intesection*/
-
+/*si le point appartient renvoie 0*/
 int isSphereIntersectPoint(Object o, G3Xpoint p){
   G3Xpoint point;
   point[0]=p[0]*(*o.Vrtx[0]);
@@ -426,6 +572,15 @@ int isSphereIntersectPoint(Object o, G3Xpoint p){
   return (pow2(point[0])+pow2(point[1])+pow2(point[2]) < 1 ? 0 : 1);
 }
 
+int isConeIntersectPoint(Object o, G3Xpoint p){
+  G3Xpoint point;
+  point[0]=p[0]*(*o.Vrtx[0]);
+  point[1]=p[1]*(*o.Vrtx[1]);
+  point[2]=p[2]*(*o.Vrtx[2]);
+  return (pow2(point[0])+pow2(point[1])-pow2(point[2])*pow2(tan(PI/(density/2))) < 1 ? 0 : 1);
+}
+
+/*ok*/
 int isCubeIntersectPoint(Object o, G3Xpoint p){
   G3Xpoint point;
   point[0]=p[0]*(*o.Vrtx[0]);
@@ -444,6 +599,37 @@ void intersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
 	}
 }
 
+void notIntersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
+	int i;
+	int N = density/2;
+  	int P = density/2;
+	for(i=0;i<N*P;i++){
+		o1.display[i]=!(*function)(o2,o1.Vrtx[i]);
+	}
+}
+
+
+void intersectionBeetweenCubeAndSphere(){
+	notIntersectShapes(shape[CUBE],shape[SPHERE],isCubeIntersectPoint);
+	notIntersectShapes(shape[SPHERE],shape[CUBE],isSphereIntersectPoint);
+}
+
+void intersectionBeetweenCubeAndCone(){
+	notIntersectShapes(shape[CUBE],shape[CONE],isCubeIntersectPoint);
+	notIntersectShapes(shape[CONE],shape[CUBE],isConeIntersectPoint);
+}
+
+void unionBeetweenCubeAndSphere(){
+	intersectShapes(shape[CUBE],shape[SPHERE],isCubeIntersectPoint);
+	intersectShapes(shape[SPHERE],shape[CUBE],isSphereIntersectPoint);
+}
+
+void unionBeetweenCubeAndCone(){
+	intersectShapes(shape[CUBE],shape[CONE],isCubeIntersectPoint);
+	intersectShapes(shape[CONE],shape[CUBE],isConeIntersectPoint);
+}
+
+
 /*
  * Fonctions principales du programme
  */
@@ -454,9 +640,12 @@ static void Init(void)
   InitCone();
   InitCube();
   InitSphere();
-
-  intersectShapes(shape[CUBE], shape[SPHERE], isCubeIntersectPoint);
-  intersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
+  InitCylinder();
+  initTore();
+ 
+  /*intersectShapes(shape[CUBE], shape[SPHERE], isCubeIntersectPoint);
+  intersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);*/
+  intersectShapes(shape[SPHERE], shape[CUBE], isSphereIntersectPoint);
 }
 /*= FONCTION D'ANIMATION =*/
 static void Anim(void)
@@ -490,6 +679,14 @@ static void Draw(void)
     g3x_Material(bleu,ambi,diff,spec,shin,1.);
     drawSphere();
   }
+if(FLAG_TORE){
+  g3x_Material(jaune,ambi,diff,spec,shin,1.);
+    drawTore();
+}
+if(FLAG_CYLINDER){
+  g3x_Material(magenta,ambi,diff,spec,shin,1.);
+    drawCylinder();
+}
 
   glEnd();
 
@@ -527,6 +724,8 @@ int main(int argc, char** argv)
   g3x_CreateSwitch("sphere",&FLAG_SPHERE,"affiche/masques la sphere  ");
 	g3x_CreateSwitch("cube ",&FLAG_CUBE ,"affiche/masques le cube     ");
 	g3x_CreateSwitch("cone  ",&FLAG_CONE  ,"affiche/masques le cone     ");
+  g3x_CreateSwitch("tore  ",&FLAG_TORE  ,"affiche/masques le tore     ");
+  g3x_CreateSwitch("cylinder  ",&FLAG_CYLINDER  ,"affiche/masques le cylinder     ");
 
 	/*zoom*/
 
