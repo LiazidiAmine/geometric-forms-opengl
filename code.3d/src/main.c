@@ -74,7 +74,7 @@ static double ambi = 0.2;
 static double diff = 0.3;
 static double spec = 0.4;
 static double shin = 0.5;
-static int density = 1200;
+static int density = 500;
 
 #define MAXCOL 25
 static G3Xcolor colmap[MAXCOL];
@@ -479,10 +479,16 @@ void intersectionCubeCone(){
 static void Init(void)
 {
 	initZoomValue();
-  InitCone();
-  InitCube();
+  /*InitCone();
+  InitCube();*/
   InitSphere();
+  int i, N = density/2, P = density/2;
 
+  for(i=0;i<N*P;i++){
+    if(i > 250){
+      shape[SPHERE].display[i]=0;
+    }
+  }
   intersectionCubeCone();
 /*
   notIntersectShapes(shape[SPHERE], shape[CONE], isSphereIntersectPoint);
@@ -504,8 +510,8 @@ static void Draw(void)
   glBegin(GL_POINTS);
   /*glPointSize(1.);*/
 
-  glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  /*glEnable(GL_BLEND);
     if(FLAG_CUBE){
     glTranslatef(0.,10.,10.);
       g3x_Material(rouge,ambi,diff,spec,shin,1.);
@@ -515,7 +521,7 @@ static void Draw(void)
       g3x_Material(vert,ambi,diff,spec,shin,alpha);
       drawCone();
     }
-  glDisable(GL_BLEND);
+  glDisable(GL_BLEND);*/
 
   if(FLAG_SPHERE){
     g3x_Material(bleu,ambi,diff,spec,shin,1.);
