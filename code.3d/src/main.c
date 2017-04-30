@@ -5,26 +5,25 @@
 #define TOR 4
 
 /* Structure d'une forme */
-typedef struct object{
+typedef struct Form{
   G3Xpoint *Vrtx;
   G3Xvector *Norm;
   G3Xpoint *Cpy;
   int *display;
   int zoom;
-}Object;
+}Form;
 /* Tableau de formes */
-Object shape[5];
+Form shape[5];
 
 /* Structure d'un noeud d'arbre */
-typedef struct node{
+typedef struct Node{
   int shape_name;
-  struct object *shape;
-  struct node *left;
-  struct node *right;
-} node;
+  struct Form *shape;
+  struct Node *left;
+  struct Node *right;
+} Node;
 /* Initialisation de l'arbre */
-node *Tree = NULL;
-
+Node **Tree = NULL;
 /*
  * FONCTIONS DE MANIPULATION D'ARBRE
  */
@@ -33,14 +32,14 @@ node *Tree = NULL;
  afin d'avoir le resultat de l'operation */
  static int RIGHT = 1;
  static int LEFT = 0;
- void addNode(node **tree, int key, Object **shape, int direction)
+ void addNode(struct Node **tree, int key,struct Form *shape, int direction)
  {
-     node *tmpNode;
-     node *tmpTree = *tree;
+     Node *tmpNode;
+     Node *tmpTree = *tree;
 
-     node *elem = malloc(sizeof(node));
+     Node *elem = malloc(sizeof(Node));
      elem->shape_name = key;
-     elem->shape = *shape;
+     elem->shape = shape;
      elem->left = NULL;
      elem->right = NULL;
 
@@ -54,6 +53,11 @@ node *Tree = NULL;
      }else  *tree = elem;
  }
 
+ void initTree(){
+   addNode(Tree, SPHERE, &shape[SPHERE], RIGHT);
+   addNode(Tree, CONE, &shape[CONE], LEFT);
+
+ }
 /* flag d'affichag/masquage */
 static bool FLAG_CUBE=true;
 static bool FLAG_CONE=true;
@@ -114,7 +118,7 @@ int pow2(int a){
  static double zoom=1;
  static double k=1.005;
 
- void zoomFunc(Object *shape){
+ void zoomFunc(Form *shape){
   G3Xpoint *v = shape->Vrtx;
    G3Xpoint *m = shape->Cpy;
    G3Xvector *n = shape->Norm;
@@ -418,7 +422,7 @@ static void drawSphere(){
 
 /*intesection*/
 
-int isSphereIntersectPoint(Object o, G3Xpoint p){
+int isSphereIntersectPoint(Form o, G3Xpoint p){
   G3Xpoint point;
   point[0]=p[0]*(*o.Vrtx[0]);
   point[1]=p[1]*(*o.Vrtx[1]);
@@ -426,7 +430,7 @@ int isSphereIntersectPoint(Object o, G3Xpoint p){
   return (pow2(point[0])+pow2(point[1])+pow2(point[2]) < 1 ? 0 : 1);
 }
 
-int isCubeIntersectPoint(Object o, G3Xpoint p){
+int isCubeIntersectPoint(Form o, G3Xpoint p){
   G3Xpoint point;
   point[0]=fabs(p[0]*(*o.Vrtx[0]));
   point[1]=fabs(p[1]*(*o.Vrtx[1]));
@@ -434,7 +438,7 @@ int isCubeIntersectPoint(Object o, G3Xpoint p){
   return (max(point[0],point[1],point[2]) < 1 ? 0 : 1);
 }
 
-int isConeIntersectPoint(Object o,G3Xpoint p){
+int isConeIntersectPoint(Form o,G3Xpoint p){
   G3Xpoint point;
   point[0]=p[0]*(*o.Vrtx[0]);
   point[1]=p[1]*(*o.Vrtx[1]);
@@ -443,7 +447,7 @@ int isConeIntersectPoint(Object o,G3Xpoint p){
 }
 
 /*o1 inclu dans 02*/
-void intersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
+void intersectShapes(Form o2,Form o1,int(*function)(Form,G3Xpoint)){
 	int i;
 	int N = density/2;
   	int P = density/2;
@@ -453,7 +457,7 @@ void intersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
 	}
 }
 
-void notIntersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
+void notIntersectShapes(Form o2,Form o1,int(*function)(Form,G3Xpoint)){
   int i;
   int N = density/2;
     int P = density/2;
