@@ -4,6 +4,7 @@
 #define SPHERE 3
 #define TOR 4
 #define CYLINDER 5
+#define REVOLUTION 6
 
 /* Structure d'une forme */
 typedef struct object{
@@ -61,6 +62,7 @@ static bool FLAG_CONE=true;
 static bool FLAG_SPHERE =true;
 static bool FLAG_TORE=true;
 static bool FLAG_CYLINDER=true;
+static bool FLAG_REVOLUTION=true;
 /* des couleurs prédéfinies */
 static G3Xcolor rouge  ={1.0,0.0,0.0};
 static G3Xcolor jaune  ={1.0,1.0,0.0};
@@ -388,6 +390,62 @@ static void InitCone(){
 
 }
 
+static void InitRevolution(){
+
+  int nbp = density/2;
+  int nbm = density/2;
+  int i,j;
+  nbv = nbp*nbm;
+  nbn = nbv;
+
+  shape[REVOLUTION].Vrtx = (G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
+  shape[REVOLUTION].Norm = (G3Xvector *)calloc(nbn,sizeof(G3Xvector));
+  shape[REVOLUTION].display =(int *)calloc(nbn,sizeof(int));
+  shape[REVOLUTION].Cpy=(G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
+
+  double a = 2.*PI/nbv;
+  double phi = PI/nbp;
+
+  G3Xpoint *v = shape[REVOLUTION].Vrtx;
+  G3Xpoint *cpy = shape[REVOLUTION].Cpy;
+  G3Xvector *n = shape[REVOLUTION].Norm;
+
+  int *tab= shape[REVOLUTION].display;
+
+  for(i= nbv/5+1; i < nbv; i++){
+    double t = g3x_Rand_Delta(1,1);
+    double k = g3x_Rand_Delta(0,PI);
+    (*n)[0]= (t/2)*cos(i*k);
+    (*v)[0] = (*n)[0];
+
+    (*n)[1]= (t/2)*sin(i*k);
+    (*v)[1] = (*n)[1];
+    (*n)[2]= t;
+    (*v)[2] = (*n)[2];
+    (*cpy)[0]=((*v)[0]);
+    (*cpy)[1]=((*v)[1]);
+    (*cpy)[2]=((*v)[2]);
+    tab[i]=1;
+    v++;
+    n++;
+  }
+
+  for(i=0; i < nbv/5; i++){
+    double r = g3x_Rand_Delta(0,1);
+    double theta = g3x_Rand_Delta(0,2*PI);
+    (*n)[0]= 0;
+    (*v)[0] = r*cos(theta);
+    (*n)[1]= 0;
+    (*v)[1] = r*sin(theta);
+    (*n)[2]= -1;
+    (*v)[2] = 0;
+    tab[i]=1;
+    v++;
+    n++;
+  }
+
+}
+
 static void InitCylinder(){
   
   int nbp = density/2;
@@ -499,26 +557,7 @@ static void drawCylinder(){
 }
 
 
-static void drawCone(){
 
-  G3Xpoint *v = shape[CONE].Vrtx;
-  G3Xpoint *m = shape[CONE].Cpy;
-  G3Xvector *n = shape[CONE].Norm ;
-  int *tab = shape[CONE].display;
-  int i=0,j=0;
-  zoomFunc(&shape[CONE]);
-
-  while(v < shape[CONE].Vrtx+nbv){
-  	if(tab[i] > 0){
-      glNormal3dv(*n);
-      glVertex3dv(*v);
-  	}
-    n++;
-    v++;
-    i++;
-  }
-
-}
 
 static void drawCube(){
 
@@ -557,6 +596,44 @@ static void drawSphere(){
   }
 
 }
+
+static void drawCone(){
+
+  G3Xpoint *v = shape[CONE].Vrtx;
+  G3Xvector *n = shape[CONE].Norm ;
+  int *tab = shape[CONE].display;
+  int i=0;
+  zoomFunc(&shape[CONE]);
+  while(v < shape[CONE].Vrtx+nbv){
+      if(tab[i] > 0){
+        glNormal3dv(*n);
+        glVertex3dv(*v);
+      }
+      n++;
+      v++;
+      i++;
+  }
+
+}
+static void drawRevolution(){
+
+  G3Xpoint *v = shape[CONE].Vrtx;
+  G3Xvector *n = shape[CONE].Norm ;
+  int *tab = shape[CONE].display;
+  int i=0;
+  zoomFunc(&shape[CONE]);
+  while(v < shape[CONE].Vrtx+nbv){
+      if(tab[i] > 0){
+        glNormal3dv(*n);
+        glVertex3dv(*v);
+      }
+      n++;
+      v++;
+      i++;
+  }
+
+}
+
 
 /*
  * Gestion de l'intersection d'objets
@@ -642,7 +719,7 @@ static void Init(void)
   InitSphere();
   InitCylinder();
   initTore();
- 
+ InitRevolution();
   /*intersectShapes(shape[CUBE], shape[SPHERE], isCubeIntersectPoint);
   intersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);*/
   intersectShapes(shape[SPHERE], shape[CUBE], isSphereIntersectPoint);
@@ -687,6 +764,10 @@ if(FLAG_CYLINDER){
   g3x_Material(magenta,ambi,diff,spec,shin,1.);
     drawCylinder();
 }
+if(FLAG_REVOLUTION){
+  g3x_Material(cyan,ambi,diff,spec,shin,1.);
+    drawRevolution();
+}
 
   glEnd();
 
@@ -726,6 +807,7 @@ int main(int argc, char** argv)
 	g3x_CreateSwitch("cone  ",&FLAG_CONE  ,"affiche/masques le cone     ");
   g3x_CreateSwitch("tore  ",&FLAG_TORE  ,"affiche/masques le tore     ");
   g3x_CreateSwitch("cylinder  ",&FLAG_CYLINDER  ,"affiche/masques le cylinder     ");
+  g3x_CreateSwitch("cone de revolution  ",&FLAG_REVOLUTION  ,"affiche/masques le cone de revolution     ");
 
 	/*zoom*/
 
