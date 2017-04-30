@@ -4,6 +4,8 @@
 #define SPHERE 3
 #define TOR 4
 
+int nbv, nbn;
+
 /* Structure d'une forme */
 typedef struct Form{
   G3Xpoint *Vrtx;
@@ -18,7 +20,7 @@ Form shape[5];
 /* Structure d'un noeud d'arbre */
 typedef struct Node{
   int shape_name;
-  struct Form *shape;
+  struct Form shape;
   struct Node *left;
   struct Node *right;
 } Node;
@@ -39,7 +41,7 @@ Node **Tree = NULL;
 
      Node *elem = malloc(sizeof(Node));
      elem->shape_name = key;
-     elem->shape = shape;
+     elem->shape = *shape;
      elem->left = NULL;
      elem->right = NULL;
 
@@ -56,7 +58,23 @@ Node **Tree = NULL;
  void initTree(){
    addNode(Tree, SPHERE, &shape[SPHERE], RIGHT);
    addNode(Tree, CONE, &shape[CONE], LEFT);
-
+ }
+ void displayTree(){
+   Form tmp = Tree[0]->shape;
+   G3Xpoint *v = tmp.Vrtx;
+   G3Xvector *n = tmp.Norm ;
+   int *tab = tmp.display;
+   int i=0;
+   printf("%d",sizeof(tab));
+   while(v < tmp.Vrtx+nbv){
+   	  if(tab[i] > 0){
+         glNormal3dv(*n);
+         glVertex3dv(*v);
+       }
+       n++;
+       v++;
+       i++;
+   }
  }
 /* flag d'affichag/masquage */
 static bool FLAG_CUBE=true;
@@ -83,7 +101,7 @@ static int density = 1200;
 #define MAXCOL 25
 static G3Xcolor colmap[MAXCOL];
 
-int nbv, nbn;
+
 
 /*
  * Fonctions utilitaires
@@ -510,7 +528,7 @@ static void Draw(void)
 
   glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    if(FLAG_CUBE){
+    /*if(FLAG_CUBE){
     glTranslatef(0.,10.,10.);
       g3x_Material(rouge,ambi,diff,spec,shin,1.);
       drawCube();
@@ -518,13 +536,15 @@ static void Draw(void)
     if(FLAG_CONE){
       g3x_Material(vert,ambi,diff,spec,shin,alpha);
       drawCone();
-    }
+    }*/
+    g3x_Material(vert,ambi,diff,spec,shin,alpha);
+    /*displayTree();*/
   glDisable(GL_BLEND);
-
+/*
   if(FLAG_SPHERE){
     g3x_Material(bleu,ambi,diff,spec,shin,1.);
     drawSphere();
-  }
+  }*/
 
   glEnd();
 
