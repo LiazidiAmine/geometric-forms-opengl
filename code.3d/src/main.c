@@ -23,41 +23,17 @@ typedef struct Node{
   struct Node *right;
 } Node;
 /* Initialisation de l'arbre */
-Node **Tree = NULL;
+Node tree = malloc(sizeof(Node));
+tree->shape = shape[SPHERE];
+tree->shape_name = SPHERE;
+tree->left = NULL;
+tree->right = NULL;
 /*
  * FONCTIONS DE MANIPULATION D'ARBRE
  */
- /* TODO il faut que je rajoute un code d'operations dans la structure de noeud et
- ensuite une fonction compute qui prend en parametre un noeud, et utilise ses deux fils
- afin d'avoir le resultat de l'operation */
- static int RIGHT = 1;
- static int LEFT = 0;
- void addNode(struct Node **tree, int key,struct Form *shape, int direction)
- {
-     Node *tmpNode;
-     Node *tmpTree = *tree;
 
-     Node *elem = malloc(sizeof(Node));
-     elem->shape_name = key;
-     elem->shape = shape;
-     elem->left = NULL;
-     elem->right = NULL;
 
-     if(tmpTree){
-       tmpNode = tmpTree;
-       if(direction == LEFT){
-         tmpNode->left = elem;
-       }else{
-         tmpNode->right = elem;
-       }
-     }else  *tree = elem;
- }
 
- void initTree(){
-   addNode(Tree, SPHERE, &shape[SPHERE], RIGHT);
-   addNode(Tree, CONE, &shape[CONE], LEFT);
-
- }
 /* flag d'affichag/masquage */
 static bool FLAG_CUBE=true;
 static bool FLAG_CONE=true;
@@ -510,7 +486,7 @@ static void Draw(void)
 
   glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    if(FLAG_CUBE){
+    /*if(FLAG_CUBE){
     glTranslatef(0.,10.,10.);
       g3x_Material(rouge,ambi,diff,spec,shin,1.);
       drawCube();
@@ -518,13 +494,14 @@ static void Draw(void)
     if(FLAG_CONE){
       g3x_Material(vert,ambi,diff,spec,shin,alpha);
       drawCone();
-    }
+    }*/
+
   glDisable(GL_BLEND);
 
-  if(FLAG_SPHERE){
+  /*if(FLAG_SPHERE){
     g3x_Material(bleu,ambi,diff,spec,shin,1.);
     drawSphere();
-  }
+  }*/
 
   glEnd();
 
