@@ -412,15 +412,32 @@ static void InitRevolution(){
 
   int *tab= shape[REVOLUTION].display;
 
-  for(i= nbv/5+1; i < nbv; i++){
+  for(i= nbv/2+1; i < 3*nbv/4; i++){
     double t = g3x_Rand_Delta(1,1);
     double k = g3x_Rand_Delta(0,PI);
-    (*n)[0]= (t/2)*cos(i*k);
+    (*n)[0]= (1-t/2)*cos(i*k);
     (*v)[0] = (*n)[0];
 
-    (*n)[1]= (t/2)*sin(i*k);
+    (*n)[1]= (1-t/2)*sin(i*k);
     (*v)[1] = (*n)[1];
-    (*n)[2]= t;
+    (*n)[2]= -t+2;
+    (*v)[2] = (*n)[2];
+    (*cpy)[0]=((*v)[0]);
+    (*cpy)[1]=((*v)[1]);
+    (*cpy)[2]=((*v)[2]);
+    tab[i]=1;
+    v++;
+    n++;
+  }
+  for(i= 3*nbv/4+1; i < nbv; i++){
+    double t = g3x_Rand_Delta(1,1);
+    double k = g3x_Rand_Delta(0,PI);
+    (*n)[0]= (1-t/2)*cos(i*k);
+    (*v)[0] = (*n)[0];
+
+    (*n)[1]= (1-t/2)*sin(i*k);
+    (*v)[1] = (*n)[1];
+    (*n)[2]= t-2;
     (*v)[2] = (*n)[2];
     (*cpy)[0]=((*v)[0]);
     (*cpy)[1]=((*v)[1]);
@@ -430,7 +447,8 @@ static void InitRevolution(){
     n++;
   }
 
-  for(i=0; i < nbv/5; i++){
+
+  for(i=0; i < nbv/4; i++){
     double r = g3x_Rand_Delta(0,1);
     double theta = g3x_Rand_Delta(0,2*PI);
     (*n)[0]= 0;
@@ -438,7 +456,21 @@ static void InitRevolution(){
     (*n)[1]= 0;
     (*v)[1] = r*sin(theta);
     (*n)[2]= -1;
-    (*v)[2] = 0;
+    (*v)[2] = -2;
+    tab[i]=1;
+    v++;
+    n++;
+  }
+
+  for(i=nbv/4+1; i < nbv/2; i++){
+    double r = g3x_Rand_Delta(0,1);
+    double theta = g3x_Rand_Delta(0,2*PI);
+    (*n)[0]= 0;
+    (*v)[0] = r*cos(theta);
+    (*n)[1]= 0;
+    (*v)[1] = r*sin(theta);
+    (*n)[2]= -1;
+    (*v)[2] = +2;
     tab[i]=1;
     v++;
     n++;
@@ -617,12 +649,12 @@ static void drawCone(){
 }
 static void drawRevolution(){
 
-  G3Xpoint *v = shape[CONE].Vrtx;
-  G3Xvector *n = shape[CONE].Norm ;
-  int *tab = shape[CONE].display;
+  G3Xpoint *v = shape[REVOLUTION].Vrtx;
+  G3Xvector *n = shape[REVOLUTION].Norm ;
+  int *tab = shape[REVOLUTION].display;
   int i=0;
-  zoomFunc(&shape[CONE]);
-  while(v < shape[CONE].Vrtx+nbv){
+  zoomFunc(&shape[REVOLUTION]);
+  while(v < shape[REVOLUTION].Vrtx+nbv){
       if(tab[i] > 0){
         glNormal3dv(*n);
         glVertex3dv(*v);
