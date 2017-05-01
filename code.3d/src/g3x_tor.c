@@ -42,7 +42,7 @@ static void Init2(){
 	double R = 1;
 	double r = 0.2;
 	/*disque de base */
-	for(i= nbv/5+1; i < nbv; i++){	
+	for(i= 0; i < nbv; i++){	
 		double t = g3x_Rand_Delta(1,1);
 		double k = g3x_Rand_Delta(0,1.9*PI);
 		double s = g3x_Rand_Delta(0,1.9*PI);

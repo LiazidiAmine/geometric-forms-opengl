@@ -6,7 +6,6 @@
 #define TOR 4
 #define CYLINDER 5
 #define REVOLUTION 6
-#define POLYGONE 7
 
 /* Structure d'une forme */
 typedef struct object{
@@ -62,7 +61,6 @@ static bool FLAG_SPHERE =true;
 static bool FLAG_TORE=true;
 static bool FLAG_CYLINDER=true;
 static bool FLAG_REVOLUTION=true;
-static bool FLAG_POLYGONE=true;
 /* des couleurs prédéfinies */
 static G3Xcolor rouge  ={1.0,0.0,0.0};
 static G3Xcolor jaune  ={1.0,1.0,0.0};
@@ -303,7 +301,6 @@ static void initTore(){
   int nbm = density/2;
 	int i,j;
 
-
 	shape[TOR].Vrtx = (G3Xpoint *)calloc(nbv,sizeof(G3Xpoint));
 	shape[TOR].Norm = (G3Xvector *)calloc(nbn,sizeof(G3Xvector));
 	shape[TOR].display =(int *)calloc(nbn,sizeof(int));
@@ -330,7 +327,6 @@ static void initTore(){
 		v++;
 		n++;
 	}
-
 
 }
 
@@ -501,6 +497,7 @@ static void InitCylinder(){
   double r = g3x_Rand_Delta(0,1);
   double theta = g3x_Rand_Delta(0,2*PI);
   for(i= 0; i < nbv/3; i++){
+
     double t = g3x_Rand_Delta(1,1);
     double k = g3x_Rand_Delta(0,PI);
     (*n)[0]=cos(i*k);
@@ -513,7 +510,6 @@ static void InitCylinder(){
     v++;
     n++;
   }
-
   /*disque de base */
   for(i=nbv/3; i < nbv*2/3; i++){
     double r = g3x_Rand_Delta(0,1);
@@ -530,7 +526,6 @@ static void InitCylinder(){
   }
 
   /*disque du haut*/
-
   /*disque de base */
   for(i=nbv*2/3; i < nbv; i++){
     double t = g3x_Rand_Delta(1,1);

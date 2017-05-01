@@ -26,7 +26,7 @@ src = src/
 # fichiers *.h locaux et lib.
 inc = -I./include $(incG3X) 
 
-exec = main spherepoint demo_scene3D
+exec = main spherepoint demo_scene3D g3x_tor
 
 all : $(exec) clean
 
