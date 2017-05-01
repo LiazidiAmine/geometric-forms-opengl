@@ -7,54 +7,38 @@
 #define REVOLUTION 6
 
 /* Structure d'une forme */
-typedef struct object{
+typedef struct Form{
   G3Xpoint *Vrtx;
   G3Xvector *Norm;
   G3Xpoint *Cpy;
   int *display;
   int zoom;
-}Object;
+}Form;
 /* Tableau de formes */
+<<<<<<< HEAD
 Object shape[10];
+=======
+Form shape[5];
+>>>>>>> eafac3e48a71798cb7b3860d179ce74ced9412fb
 
 /* Structure d'un noeud d'arbre */
-typedef struct node{
+typedef struct Node{
   int shape_name;
-  struct object *shape;
-  struct node *left;
-  struct node *right;
-} node;
+  struct Form *shape;
+  struct Node *left;
+  struct Node *right;
+} Node;
 /* Initialisation de l'arbre */
-node *Tree = NULL;
-
+Node tree = malloc(sizeof(Node));
+tree->shape = shape[SPHERE];
+tree->shape_name = SPHERE;
+tree->left = NULL;
+tree->right = NULL;
 /*
  * FONCTIONS DE MANIPULATION D'ARBRE
  */
- /* TODO il faut que je rajoute un code d'operations dans la structure de noeud et
- ensuite une fonction compute qui prend en parametre un noeud, et utilise ses deux fils
- afin d'avoir le resultat de l'operation */
- static int RIGHT = 1;
- static int LEFT = 0;
- void addNode(node **tree, int key, Object **shape, int direction)
- {
-     node *tmpNode;
-     node *tmpTree = *tree;
 
-     node *elem = malloc(sizeof(node));
-     elem->shape_name = key;
-     elem->shape = *shape;
-     elem->left = NULL;
-     elem->right = NULL;
 
-     if(tmpTree){
-       tmpNode = tmpTree;
-       if(direction == LEFT){
-         tmpNode->left = elem;
-       }else{
-         tmpNode->right = elem;
-       }
-     }else  *tree = elem;
- }
 
 /* flag d'affichag/masquage */
 static bool FLAG_CUBE=true;
@@ -79,7 +63,7 @@ static double ambi = 0.2;
 static double diff = 0.3;
 static double spec = 0.4;
 static double shin = 0.5;
-static int density = 500;
+static int density = 1200;
 
 #define MAXCOL 25
 static G3Xcolor colmap[MAXCOL];
@@ -119,7 +103,7 @@ int pow2(int a){
  static double zoom=1;
  static double k=1.005;
 
- void zoomFunc(Object *shape){
+ void zoomFunc(Form *shape){
   G3Xpoint *v = shape->Vrtx;
    G3Xpoint *m = shape->Cpy;
    G3Xvector *n = shape->Norm;
@@ -672,8 +656,13 @@ static void drawRevolution(){
  */
 
 /*intesection*/
+<<<<<<< HEAD
 /*si le point appartient renvoie 0*/
 int isSphereIntersectPoint(Object o, G3Xpoint p){
+=======
+
+int isSphereIntersectPoint(Form o, G3Xpoint p){
+>>>>>>> eafac3e48a71798cb7b3860d179ce74ced9412fb
   G3Xpoint point;
   point[0]=p[0]*(*o.Vrtx[0]);
   point[1]=p[1]*(*o.Vrtx[1]);
@@ -681,6 +670,7 @@ int isSphereIntersectPoint(Object o, G3Xpoint p){
   return (pow2(point[0])+pow2(point[1])+pow2(point[2]) < 1 ? 0 : 1);
 }
 
+<<<<<<< HEAD
 int isConeIntersectPoint(Object o, G3Xpoint p){
   G3Xpoint point;
   point[0]=p[0]*(*o.Vrtx[0]);
@@ -691,23 +681,36 @@ int isConeIntersectPoint(Object o, G3Xpoint p){
 
 /*ok*/
 int isCubeIntersectPoint(Object o, G3Xpoint p){
+=======
+int isCubeIntersectPoint(Form o, G3Xpoint p){
+  G3Xpoint point;
+  point[0]=fabs(p[0]*(*o.Vrtx[0]));
+  point[1]=fabs(p[1]*(*o.Vrtx[1]));
+  point[2]=fabs(p[2]*(*o.Vrtx[2]));
+  return (max(point[0],point[1],point[2]) < 1 ? 0 : 1);
+}
+
+int isConeIntersectPoint(Form o,G3Xpoint p){
+>>>>>>> eafac3e48a71798cb7b3860d179ce74ced9412fb
   G3Xpoint point;
   point[0]=p[0]*(*o.Vrtx[0]);
   point[1]=p[1]*(*o.Vrtx[1]);
   point[2]=p[2]*(*o.Vrtx[2]);
-  return (max(point[0],point[1],point[2]) < 1 ? 0 : 1);
+  return (pow2(point[0])+pow2(point[1])-pow2(point[2])*pow2(tan(PI/(500/2))) < 1 ? 0 : 1);
 }
 
 /*o1 inclu dans 02*/
-void intersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
+void intersectShapes(Form o2,Form o1,int(*function)(Form,G3Xpoint)){
 	int i;
 	int N = density/2;
   	int P = density/2;
 	for(i=0;i<N*P;i++){
-		o1.display[i]=(*function)(o2,o1.Vrtx[i]);
+		o1.display[i]=!(*function)(o2,o1.Vrtx[i]);
+
 	}
 }
 
+<<<<<<< HEAD
 void notIntersectShapes(Object o2,Object o1,int(*function)(Object,G3Xpoint)){
 	int i;
 	int N = density/2;
@@ -739,22 +742,52 @@ void unionBeetweenCubeAndCone(){
 }
 
 
+=======
+void notIntersectShapes(Form o2,Form o1,int(*function)(Form,G3Xpoint)){
+  int i;
+  int N = density/2;
+    int P = density/2;
+  for(i=0;i<N*P;i++){
+    o1.display[i]=(*function)(o2,o1.Vrtx[i]);
+
+  }
+}
+
+>>>>>>> eafac3e48a71798cb7b3860d179ce74ced9412fb
 /*
  * Fonctions principales du programme
  */
 
+void unionCubeCone(){
+  intersectShapes(shape[CONE], shape[CUBE], isConeIntersectPoint);
+notIntersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
+}
+
+void intersectionCubeCone(){
+  notIntersectShapes(shape[CONE], shape[CUBE], isConeIntersectPoint);
+  intersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
+}
 static void Init(void)
 {
 	initZoomValue();
   InitCone();
   InitCube();
   InitSphere();
+<<<<<<< HEAD
   InitCylinder();
   initTore();
  InitRevolution();
   /*intersectShapes(shape[CUBE], shape[SPHERE], isCubeIntersectPoint);
   intersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);*/
   intersectShapes(shape[SPHERE], shape[CUBE], isSphereIntersectPoint);
+=======
+
+  intersectionCubeCone();
+/*
+  notIntersectShapes(shape[SPHERE], shape[CONE], isSphereIntersectPoint);
+  notIntersectShapes(shape[CUBE], shape[CONE], isCubeIntersectPoint);
+  fprintf(stderr, "do\n");*/
+>>>>>>> eafac3e48a71798cb7b3860d179ce74ced9412fb
 }
 /*= FONCTION D'ANIMATION =*/
 static void Anim(void)
@@ -773,7 +806,7 @@ static void Draw(void)
 
   glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    if(FLAG_CUBE){
+    /*if(FLAG_CUBE){
     glTranslatef(0.,10.,10.);
       g3x_Material(rouge,ambi,diff,spec,shin,1.);
       drawCube();
@@ -781,12 +814,14 @@ static void Draw(void)
     if(FLAG_CONE){
       g3x_Material(vert,ambi,diff,spec,shin,alpha);
       drawCone();
-    }
+    }*/
+
   glDisable(GL_BLEND);
 
-  if(FLAG_SPHERE){
+  /*if(FLAG_SPHERE){
     g3x_Material(bleu,ambi,diff,spec,shin,1.);
     drawSphere();
+<<<<<<< HEAD
   }
 if(FLAG_TORE){
   g3x_Material(jaune,ambi,diff,spec,shin,1.);
@@ -800,6 +835,9 @@ if(FLAG_REVOLUTION){
   g3x_Material(cyan,ambi,diff,spec,shin,1.);
     drawRevolution();
 }
+=======
+  }*/
+>>>>>>> eafac3e48a71798cb7b3860d179ce74ced9412fb
 
   glEnd();
 
